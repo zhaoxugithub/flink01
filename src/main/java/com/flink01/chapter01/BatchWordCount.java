@@ -11,7 +11,6 @@ import org.apache.flink.util.Collector;
 
 //基于DataSet 批处理的方式执行，但是官方已经不推荐使用了
 public class BatchWordCount {
-
     public static void main(String[] args) throws Exception {
         //创建执行环境
         ExecutionEnvironment executionEnvironment = ExecutionEnvironment.getExecutionEnvironment();

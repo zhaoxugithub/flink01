@@ -23,7 +23,6 @@ public class SourceTest {
         //sss:6> 2
         //sss:7> 5
 
-
         ArrayList<Event> events = new ArrayList<>();
         events.add(new Event("Mary", "./home", 1000L));
         events.add(new Event("Bob", "./cart", 2000L));

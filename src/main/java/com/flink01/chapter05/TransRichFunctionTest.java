@@ -26,12 +26,10 @@ public class TransRichFunctionTest {
                         super.open(parameters);
                         System.out.println("索引为 " + getRuntimeContext().getIndexOfThisSubtask() + " 的任务开始");
                     }
-
                     @Override
                     public Long map(Event value) throws Exception {
                         return value.timestamp;
                     }
-
                     @Override
                     public void close() throws Exception {
                         super.close();
@@ -39,7 +37,6 @@ public class TransRichFunctionTest {
                     }
                 })
                 .print();
-
         env.execute();
     }
 }

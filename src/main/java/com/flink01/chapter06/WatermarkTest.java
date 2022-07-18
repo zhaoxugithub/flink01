@@ -13,34 +13,13 @@ import org.apache.flink.util.Collector;
 
 import java.time.Duration;
 
-
-/*
-
-
-
-"zs","/home1",1658034285000
-"zs","/home1",1658034285010
-"zs","/home1",1658034285020
-"lisi","/home1",1658034285100
-"lisi","/home1",1658034285150
-"lisi","/home1",1658034285200
-"lisi","/home1",1658034285250
-"wangwu","/home1",1658034285300
-"wangwu","/home1",1658034295000
-
-
-窗口1658034280000 ~ 1658034290000中共有3个元素，窗口闭合计算时，水位线处于：1658034289999
-窗口1658034280000 ~ 1658034290000中共有4个元素，窗口闭合计算时，水位线处于：1658034289999
-窗口1658034280000 ~ 1658034290000中共有1个元素，窗口闭合计算时，水位线处于：1658034289999
- */
-public class WatermarkTest02 {
+public class WatermarkTest {
 
     public static void main(String[] args) throws Exception {
-        // 创建执行环境
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
-        //设置水位线时间周期，每100ms设置一个水位线
-        env.getConfig().setAutoWatermarkInterval(100);
+
+        // 将数据源改为socket文本流，并转换成Event类型
         env.socketTextStream("192.168.1.151", 7777)
                 .map(new MapFunction<String, Event>() {
                     @Override
@@ -49,24 +28,26 @@ public class WatermarkTest02 {
                         return new Event(fields[0].trim(), fields[1].trim(), Long.valueOf(fields[2].trim()));
                     }
                 })
-
+                // 插入水位线的逻辑
                 .assignTimestampsAndWatermarks(
-                        //无序流的水位生成
-                        //Duration.ofSeconds(5) 延迟5s
+                        // 针对乱序流插入水位线，延迟时间设置为5s
                         WatermarkStrategy.<Event>forBoundedOutOfOrderness(Duration.ofSeconds(5))
-                                //时间戳的提取规则
                                 .withTimestampAssigner(new SerializableTimestampAssigner<Event>() {
+                                    // 抽取时间戳的逻辑
                                     @Override
                                     public long extractTimestamp(Event element, long recordTimestamp) {
                                         return element.timestamp;
                                     }
                                 })
                 )
-
+                // 根据user分组，开窗统计
                 .keyBy(data -> data.user)
+                //.countWindow(10,2)//滑动计数窗口10个数统计一次，滑动2一个统计一次
+                //.window(EventTimeSessionWindows.withGap(Time.seconds(2))) //事件事件会话窗口
+                //.window(SlidingEventTimeWindows.of(Time.seconds(10),Time.seconds(1))):滑动窗口，滑动窗口大小为10s，滑动步长为1s
+                //TumblingEventTimeWindows：滚动时间窗口，窗口大小为10s
                 .window(TumblingEventTimeWindows.of(Time.seconds(10)))
                 .process(new WatermarkTestResult())
-
                 .print();
 
         env.execute();
@@ -74,7 +55,6 @@ public class WatermarkTest02 {
 
     // 自定义处理窗口函数，输出当前的水位线和窗口信息
     public static class WatermarkTestResult extends ProcessWindowFunction<Event, String, String, TimeWindow> {
-        //这个函数直到第10s数据来的时候才会触发
         @Override
         public void process(String s, Context context, Iterable<Event> elements, Collector<String> out) throws Exception {
             Long start = context.window().getStart();
