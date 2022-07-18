@@ -21,7 +21,7 @@ public class ClickSource implements ParallelSourceFunction<Event> {
             ctx.collect(new Event(
                     users[random.nextInt(users.length)],
                     urls[random.nextInt(urls.length)],
-                    Calendar.getInstance().getTimeInMillis()
+                    Calendar.getInstance().getTimeInMillis()-(new Random().nextInt(10) + 1)*1000
             ));
             // 隔1秒生成一个点击事件，方便观测
             Thread.sleep(1000);

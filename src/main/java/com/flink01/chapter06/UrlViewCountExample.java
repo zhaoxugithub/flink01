@@ -28,6 +28,10 @@ public class UrlViewCountExample {
                             }
                         }));
         stream.print("stream=");
+
+
+        //窗口开始时间 = timestamp - (timestamp - offset + windowSize) % windowSize
+        //1658118655000
         // 需要按照url分组，开滑动窗口统计
         stream.keyBy(data -> data.url)
                 .window(SlidingEventTimeWindows.of(Time.seconds(10), Time.seconds(2)))
