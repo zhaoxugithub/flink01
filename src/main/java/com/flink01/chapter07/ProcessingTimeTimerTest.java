@@ -18,7 +18,6 @@ public class ProcessingTimeTimerTest {
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
-
         DataStreamSource<Event> stream = env.addSource(new ClickSource());
         stream.keyBy(t -> true)
                 /*
@@ -41,7 +40,6 @@ public class ProcessingTimeTimerTest {
 
                         ctx.timerService().registerProcessingTimeTimer(timeServerTime + 10 * 1000);
                     }
-
                     /*
                         靠时间去触发的
 

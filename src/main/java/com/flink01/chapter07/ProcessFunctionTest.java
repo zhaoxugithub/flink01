@@ -59,35 +59,24 @@ public class ProcessFunctionTest {
                     out.collect(event.user);
                     out.collect(event.user);
                 }
-
                 out.collect(event.toString());
-
                 //获取当前的时间
                 Long timestamp = ctx.timestamp();
-
                 //ctx.output(); //侧边输出流
-
                 //ctx.timerService(); //获取定时器服务
-
-
                 //因为processFunction又继承了RichFunction，所以他又具备了富函数的相关功能
                 //获取运行时的子任务下标
                 System.out.println("getRuntimeContext().getIndexOfThisSubtask() = " + getRuntimeContext().getIndexOfThisSubtask());
-
                 //获取任务的处理状态
                 //getRuntimeContext().getState()
-
-
                 TimerService timerService = ctx.timerService();
-
-                SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
                 String start = sdf.format(new Date(Long.parseLong(String.valueOf(timestamp))));
                 String end = sdf.format(new Date(Long.parseLong(String.valueOf(timerService.currentWatermark()))));
                 System.out.println("日志事件时间 = " + start);
                 System.out.println("水位线 = " + end);
             }
         });
-
         env.execute();
     }
 }

@@ -48,6 +48,7 @@ public class ProcessAllWindowTopN {
         stream.print("原始数据=");
 
         stream.keyBy(t -> t.url);
+
         SingleOutputStreamOperator<String> result = stream.map(t -> t.url).returns(Types.STRING)
                 .windowAll(SlidingEventTimeWindows.of(Time.seconds(10), Time.seconds(5)))
                 .process(new ProcessAllWindowFunction<String, String, TimeWindow>() {
