@@ -30,11 +30,8 @@ public class ProcessAllWindowTopN {
 
     public static void main(String[] args) throws Exception {
 
-
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-
         env.setParallelism(1);
-
         SingleOutputStreamOperator<Event> stream = env.addSource(new ClickSource())
                 .assignTimestampsAndWatermarks(WatermarkStrategy.<Event>forBoundedOutOfOrderness(Duration.ZERO)
                         .withTimestampAssigner(new SerializableTimestampAssigner<Event>() {
@@ -44,12 +41,10 @@ public class ProcessAllWindowTopN {
                             }
                         })
                 );
-
         stream.print("原始数据=");
-
         stream.keyBy(t -> t.url);
-
         SingleOutputStreamOperator<String> result = stream.map(t -> t.url).returns(Types.STRING)
+                // 设置并行度为1的窗口，上游的所有分区数据都
                 .windowAll(SlidingEventTimeWindows.of(Time.seconds(10), Time.seconds(5)))
                 .process(new ProcessAllWindowFunction<String, String, TimeWindow>() {
                     @Override

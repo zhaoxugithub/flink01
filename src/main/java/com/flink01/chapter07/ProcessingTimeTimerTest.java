@@ -42,9 +42,7 @@ public class ProcessingTimeTimerTest {
                     }
                     /*
                         靠时间去触发的
-
                         timestamp：触发时间
-
                         KeyedProcessFunction<Boolean, Event, String>.OnTimerContext ctx  ==  KeyedProcessFunction<Boolean, Event, String>.Context ctx
                      */
                     @Override
