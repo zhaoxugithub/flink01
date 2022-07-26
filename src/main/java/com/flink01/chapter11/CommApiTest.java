@@ -43,7 +43,7 @@ public class CommApiTest {
         //Table table = environment.sqlQuery("select * from MyTable ....");
         //environment.createTemporaryView("newTable",table);
 
-        String createDDL ="CREATE TABLE clickTable (" +
+        String createDDL = "CREATE TABLE clickTable (" +
                 " user_name STRING, " +
                 " url STRING, " +
                 " ts BIGINT " +
@@ -56,6 +56,9 @@ public class CommApiTest {
         TableResult result = environment.executeSql(createDDL);
         result.print();
 
+        System.out.println("原始表");
+        environment.sqlQuery("select * from clickTable").execute().print();
+
         //表查询
         //调用TABLE API
         Table clickTable = environment.from("clickTable");
@@ -66,10 +69,45 @@ public class CommApiTest {
         //如果想只用sql查询的话，需要将Table Api转成sql
         //方法需要将resultTable注册到环境中
         //实际上就是创建一个虚拟表
-        environment.createTemporaryView("ResultTable",resultTable);
+        environment.createTemporaryView("ResultTable", resultTable);
 
-        environment.sqlQuery("select * from ResultTable");
+        environment.sqlQuery("select * from ResultTable")
+                .execute()
+                .print();
 
+
+        //执行聚合函数
+        Table aggTable = environment.sqlQuery("select user_name,count(1) as tt from clickTable group by user_name");
+        aggTable.execute().print();
+
+
+        //输出表
+        // 4. 创建一张用于输出的表
+        String createOutDDL = "CREATE TABLE outTable (" +
+                " url STRING, " +
+                " user_name STRING " +
+                ") WITH (" +
+                " 'connector' = 'filesystem', " +
+                " 'path' = 'output', " +
+                " 'format' =  'csv' " +
+                ")";
+
+        environment.executeSql(createOutDDL);
+
+        // 创建一张用于控制台打印输出的表
+        String createPrintOutDDL = "CREATE TABLE printOutTable (" +
+                " user_name STRING, " +
+                " cnt BIGINT " +
+                ") WITH (" +
+                " 'connector' = 'print' " +
+                ")";
+
+        environment.executeSql(createPrintOutDDL);
+
+        // 5. 输出表
+//        resultTable.executeInsert("outTable");
+//        resultTable.executeInsert("printOutTable");
+        aggTable.executeInsert("printOutTable");
 
     }
 }
