@@ -1,2 +1,4 @@
 /.idea/
 /target/
+/flink_scala/target/
+/flink_java/target/
