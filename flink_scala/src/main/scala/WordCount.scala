@@ -1,7 +1,6 @@
 import org.apache.flink.streaming.api.scala._
 
 object WordCount {
-
   def main(args: Array[String]): Unit = {
     //准备环境
     /**
