@@ -13,8 +13,8 @@
 
 
     <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
 
         <flink.version>1.13.0</flink.version>
         <java.version>1.8</java.version>
@@ -135,6 +135,19 @@
         </dependency>
 
 
+        <dependency>
+            <groupId>com.ververica</groupId>
+            <artifactId>flink-connector-mysql-cdc</artifactId>
+            <version>2.0.0</version>
+        </dependency>
+        <!--flink-doris-connector-->
+        <dependency>
+            <groupId>org.apache.doris</groupId>
+            <artifactId>flink-doris-connector-1.13_2.12</artifactId>
+            <version>1.0.3</version>
+        </dependency>
+
+
     </dependencies>
     <repositories>
         <repository>
@@ -175,8 +188,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.0</version>
                 <configuration>
-                    <source>9</source>
-                    <target>9</target>
+                    <source>8</source>
+                    <target>8</target>
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>

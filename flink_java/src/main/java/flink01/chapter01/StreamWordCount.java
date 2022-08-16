@@ -26,6 +26,5 @@ public class StreamWordCount {
         SingleOutputStreamOperator<Tuple2<String, Long>> sum = tuple2StringKeyedStream.sum(1);
         sum.print();
         executionEnvironment.execute();
-
     }
 }
