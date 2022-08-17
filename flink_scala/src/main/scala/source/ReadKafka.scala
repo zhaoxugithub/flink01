@@ -11,7 +11,6 @@ import org.apache.kafka.common.serialization.StringSerializer
 import org.apache.flink.streaming.api.scala._
 
 
-
 object ReadKafka {
 
   def main(args: Array[String]): Unit = {
@@ -21,7 +20,7 @@ object ReadKafka {
     val props = new Properties()
     //注意   sparkstreaming + kafka（0.10之前版本） receiver模式  zookeeper url（元数据）
     props.setProperty("bootstrap.servers", "1.15.149.196:9092")
-    props.setProperty("group.id","flink-kafka-01")
+    props.setProperty("group.id", "flink-kafka-01")
     //设置key和value的序列化器
     props.setProperty("key.deserializer", classOf[StringSerializer].getName)
     props.setProperty("value.deserializer", classOf[StringSerializer].getName)
@@ -29,6 +28,7 @@ object ReadKafka {
     val stream: DataStream[(String, String)] = env.addSource(new FlinkKafkaConsumer[(String, String)]("flink-kafka", new KafkaDeserializationSchema[(String, String)] {
       //停止消费数据的条件
       override def isEndOfStream(t: (String, String)): Boolean = false
+
       // 要进行序列化的字节流
       override def deserialize(consumerRecord: ConsumerRecord[Array[Byte], Array[Byte]]): (String, String) = {
 

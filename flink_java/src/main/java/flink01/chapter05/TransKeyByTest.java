@@ -8,7 +8,7 @@ public class TransKeyByTest {
     public static void main(String[] args) throws Exception {
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        env.setParallelism(1);
+        env.setParallelism(2);
         DataStreamSource<Event> eventDataStreamSource = env.fromElements(new Event("mary", "./home", 1000L), new Event("Bob", "./cart", 2000L), new Event("mary", "./home", 3000L));
         //使用lambda
         eventDataStreamSource.keyBy(e -> e.user).print();

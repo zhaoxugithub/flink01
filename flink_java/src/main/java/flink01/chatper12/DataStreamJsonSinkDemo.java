@@ -1,18 +1,10 @@
 package flink01.chatper12;
 
-import org.apache.doris.flink.cfg.DorisExecutionOptions;
-import org.apache.doris.flink.cfg.DorisOptions;
-import org.apache.doris.flink.cfg.DorisReadOptions;
-import org.apache.doris.flink.cfg.DorisSink;
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-
-import java.util.Properties;
-
 public class DataStreamJsonSinkDemo {
 
     public static void main(String[] args) throws Exception {
 
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+     /*    StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
         Properties pro = new Properties();
         pro.setProperty("format", "json");
@@ -44,6 +36,6 @@ public class DataStreamJsonSinkDemo {
 // .setUsername("root")
 // .setPassword("").build()
 // ));
-        env.execute();
+        env.execute(); */
     }
 }
