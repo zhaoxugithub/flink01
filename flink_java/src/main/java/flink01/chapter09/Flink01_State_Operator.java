@@ -13,12 +13,9 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
  * 在map算子中计算数据的个数
  */
 public class Flink01_State_Operator {
-
     public static void main(String[] args) throws Exception {
-
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
-
         env.socketTextStream("localhost", 9999).map(new MyCountMapper())
                 .print();
         env.execute();

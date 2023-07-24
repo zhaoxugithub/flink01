@@ -10,10 +10,8 @@ import org.apache.flink.util.Collector
  */
 object SideOutputOperator {
   def main(args: Array[String]): Unit = {
-
     val env: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
     val stream: DataStream[String] = env.socketTextStream("localhost", 9991)
-
     //定义侧输出流的tag标签
     val gtTag = new OutputTag[String]("gt")
     //输入为String，输出：String
@@ -32,11 +30,8 @@ object SideOutputOperator {
         }
       }
     })
-
     processStream.getSideOutput(gtTag).print("sideStream=")
-
     processStream.print("mainStream=")
-
     env.execute()
   }
 }

@@ -91,7 +91,6 @@ public class KeyedProcessTopN {
             out.collect(new UrlViewCount(s, elements.iterator().next(), context.window().getStart(), context.window().getEnd()));
         }
     }
-
     /**
      * 自定义函数取TOPN
      * * @param <K> Type of the key.

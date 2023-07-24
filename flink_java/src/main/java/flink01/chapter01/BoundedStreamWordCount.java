@@ -14,18 +14,21 @@ import java.util.Arrays;
 public class BoundedStreamWordCount {
 
     public static void main(String[] args) throws Exception {
-        //创建流式处理环境
+        // 创建流式处理环境
         StreamExecutionEnvironment executionEnvironment = StreamContextEnvironment.getExecutionEnvironment();
         DataStreamSource<String> dss = executionEnvironment.readTextFile("data/input/word.txt");
 
-        //xxx operator 表示返回的是转换算子的操作
+        // xxx operator 表示返回的是转换算子的操作
         SingleOutputStreamOperator<Tuple2<String, Long>> flatMapDSS = dss.flatMap((String line, Collector<String> out) -> {
-        //Arrays.stream(line.split(" ")).forEach((word) -> out.collect(word));
-            //简化成：
-            Arrays.stream(line.split(" ")).forEach(out::collect);
-        }).returns(Types.STRING).map(word -> Tuple2.of(word, 1L)).returns(Types.TUPLE(Types.STRING, Types.LONG));
+                    // Arrays.stream(line.split(" ")).forEach((word) -> out.collect(word));
+                    // 简化成：
+                    Arrays.stream(line.split(" "))
+                            .forEach(out::collect);
+                }).returns(Types.STRING)
+                .map(word -> Tuple2.of(word, 1L))
+                .returns(Types.TUPLE(Types.STRING, Types.LONG));
 
-        //keyBy 并不是一个转换算子，他只是一个数据分区操作
+        // keyBy 并不是一个转换算子，他只是一个数据分区操作
         KeyedStream<Tuple2<String, Long>, String> tuple2StringKeyedStream = flatMapDSS.keyBy(t -> t.f0);
         SingleOutputStreamOperator<Tuple2<String, Long>> sum = tuple2StringKeyedStream.sum(1);
         sum.print();

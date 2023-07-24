@@ -9,7 +9,6 @@ import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 
 public class TableToStreamExample {
 
-
     public static void main(String[] args) throws Exception {
 
         // 获取流环境

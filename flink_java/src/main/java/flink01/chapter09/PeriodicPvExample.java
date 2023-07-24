@@ -41,36 +41,30 @@ public class PeriodicPvExample {
         KeyedProcessFunction 继承自AbstractRichFunction
         所以具有任务的生命周期方法:open,close等
         还有RunTimeContext上下文，
-
         同时，由于继承了KeyedProcessFunction，所以具有OnTimer定时器触发方法
      */
     public static class PeriodicPvResult extends KeyedProcessFunction<String, Event, String> {
         //定义两个状态，保存当前的pv值，以及定时器时间戳
         ValueState<Long> countState;
         ValueState<Long> timerTsState;
-
         //只会执行一次
         @Override
         public void open(Configuration parameters) throws Exception {
             countState = getRuntimeContext().getState(new ValueStateDescriptor<Long>("count", Long.class));
             timerTsState = getRuntimeContext().getState(new ValueStateDescriptor<Long>("timerTs", Long.class));
         }
-
         //每来一条数据执行一次
         @Override
         public void processElement(Event value, KeyedProcessFunction<String, Event, String>.Context ctx,
                                    Collector<String> out) throws Exception {
             Long value1 = countState.value();
-
             if (value1 == null) {
                 countState.update(1L);
             } else {
                 countState.update(value1 + 1);
             }
-
             //注册定时器,10s之后会触发
             ctx.timerService().registerEventTimeTimer(value.timestamp + 10 * 1000L);
-
             //再将定时器保存到状态中
             timerTsState.update(value.timestamp + 10 * 1000L);
         }

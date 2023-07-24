@@ -20,17 +20,11 @@ import scala.collection.mutable
 object CoFlatMap {
 
   def main(args: Array[String]): Unit = {
-
-
     val env: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
-
     env.setParallelism(1)
     val socketStream: DataStream[String] = env.socketTextStream("localhost", 9991)
-
     val path = "data/input/carddict.txt"
     val fileStream: DataStream[String] = env.readFile(new TextInputFormat(new Path(path)), path, FileProcessingMode.PROCESS_CONTINUOUSLY, 10)
-
-
     socketStream.connect(fileStream)
       //String,String,String ===> IN,IN,OUT
       .map(new CoMapFunction[String, String, String] {

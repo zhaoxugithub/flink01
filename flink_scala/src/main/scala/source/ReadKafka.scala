@@ -25,7 +25,7 @@ object ReadKafka {
     props.setProperty("key.deserializer", classOf[StringSerializer].getName)
     props.setProperty("value.deserializer", classOf[StringSerializer].getName)
 
-    val stream: DataStream[(String, String)] = env.addSource(new FlinkKafkaConsumer[(String, String)]("flink-kafka", new KafkaDeserializationSchema[(String, String)] {
+    val stream: DataStream[(String, String)] = env.addSource(new FlinkKafkaConsumer[(String, String)]("ODS_DB_BUSSINESS_DATA", new KafkaDeserializationSchema[(String, String)] {
       //停止消费数据的条件
       override def isEndOfStream(t: (String, String)): Boolean = false
 

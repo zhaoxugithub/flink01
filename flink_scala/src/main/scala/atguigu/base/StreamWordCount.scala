@@ -7,7 +7,7 @@ object StreamWordCount {
   def main(args: Array[String]): Unit = {
 
     val env: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
-    val dataStream: DataStream[String] = env.socketTextStream("localhost", 9999)
+    val dataStream: DataStream[String] = env.socketTextStream("centos201", 9999)
     val result: DataStream[(String, Int)] = dataStream
       .flatMap(x => x.split(" "))
       .map(x => (x, 1))

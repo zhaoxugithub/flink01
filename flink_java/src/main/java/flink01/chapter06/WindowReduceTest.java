@@ -31,7 +31,6 @@ public class WindowReduceTest {
                         //提取时间戳策略
                         .withTimestampAssigner((e,l)->e.timestamp)
                 );
-
             stream.map(e-> Tuple2.of(e.user,1L)).returns(Types.TUPLE(Types.STRING,Types.LONG))
                     //分流，相同的key放到同一个分区里面
                     .keyBy(r->r.f0)

@@ -49,7 +49,6 @@ public class WatermarkTest02 {
                         return new Event(fields[0].trim(), fields[1].trim(), Long.valueOf(fields[2].trim()));
                     }
                 })
-
                 .assignTimestampsAndWatermarks(
                         //无序流的水位生成
                         //Duration.ofSeconds(5) 延迟5s
@@ -62,13 +61,10 @@ public class WatermarkTest02 {
                                     }
                                 })
                 )
-
                 .keyBy(data -> data.user)
                 .window(TumblingEventTimeWindows.of(Time.seconds(10)))
                 .process(new WatermarkTestResult())
-
                 .print();
-
         env.execute();
     }
 

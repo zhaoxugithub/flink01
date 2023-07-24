@@ -46,7 +46,6 @@ public class WatermarkTest03 {
                 .window(TumblingEventTimeWindows.of(Time.seconds(10)))
                 .process(new WatermarkTestResult())
                 .print();
-
         env.execute();
     }
 

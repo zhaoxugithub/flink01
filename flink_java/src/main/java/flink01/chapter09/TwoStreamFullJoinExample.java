@@ -25,11 +25,8 @@ import java.time.Duration;
 public class TwoStreamFullJoinExample {
 
     public static void main(String[] args) throws Exception {
-
-
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
-
         SingleOutputStreamOperator<Tuple3<String, String, Long>> stream1 = env.fromElements(
                 Tuple3.of("a", "stream-1", 1000L),
                 Tuple3.of("b", "stream-1", 2000L)
@@ -68,7 +65,6 @@ public class TwoStreamFullJoinExample {
                         stream1ListState = getRuntimeContext().getListState(new ListStateDescriptor<Tuple3<String, String, Long>>("stream1-list", Types.TUPLE(Types.STRING, Types.STRING)));
                         stream2ListState = getRuntimeContext().getListState(new ListStateDescriptor<Tuple3<String, String, Long>>("stream2-list", Types.TUPLE(Types.STRING, Types.STRING)));
                     }
-
                     @Override
                     public void processElement1(Tuple3<String, String, Long> left, CoProcessFunction<Tuple3<String, String, Long>,
                             Tuple3<String, String, Long>, Object>.Context ctx, Collector<Object> out) throws Exception {
@@ -78,7 +74,6 @@ public class TwoStreamFullJoinExample {
                             out.collect(left + "1==================" + right);
                         }
                     }
-
                     @Override
                     public void processElement2(Tuple3<String, String, Long> right, CoProcessFunction<Tuple3<String, String, Long>,
                             Tuple3<String, String, Long>, Object>.Context ctx, Collector<Object> out) throws Exception {
@@ -90,8 +85,6 @@ public class TwoStreamFullJoinExample {
                     }
                 })
                 .print();
-
         env.execute();
-
     }
 }

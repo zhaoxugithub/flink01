@@ -11,18 +11,14 @@ import scala.io.Source
 object SendToKafka {
 
   def main(args: Array[String]): Unit = {
-
     val env: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
-
     val props = new Properties()
     //注意   sparkstreaming + kafka（0.10之前版本） receiver模式  zookeeper url（元数据）
     props.setProperty("bootstrap.servers", "1.15.149.196:9092")
     //设置key和value的序列化器
     props.setProperty("key.serializer", classOf[StringSerializer].getName)
     props.setProperty("value.serializer", classOf[StringSerializer].getName)
-
     val producer = new KafkaProducer[String,String](props)
-
     //不要轻易调用getLines
     val iterator = Source.fromFile("data/input/carFlow_all_column_test.txt").getLines()
     for (i <- 1 to 100) {
@@ -39,7 +35,5 @@ object SendToKafka {
         producer.send(new ProducerRecord[String,String]("flink-kafka",i+"",info.toString))
       }
     }
-
-
   }
 }

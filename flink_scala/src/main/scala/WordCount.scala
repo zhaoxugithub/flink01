@@ -11,7 +11,6 @@ object WordCount {
      */
     val env: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
     env.setParallelism(1)
-
     val value: DataStream[String] = env.socketTextStream("localhost", 9991)
     value.
       flatMap(_.split(" "))

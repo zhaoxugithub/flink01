@@ -7,17 +7,14 @@ public class UrlViewCount {
     public Long count;
     public Long windowStart;
     public Long windowEnd;
-
     public UrlViewCount() {
     }
-
     public UrlViewCount(String url, Long count, Long windowStart, Long windowEnd) {
         this.url = url;
         this.count = count;
         this.windowStart = windowStart;
         this.windowEnd = windowEnd;
     }
-
     @Override
     public String toString() {
         return "UrlViewCount{" +

@@ -9,13 +9,9 @@ public class Test01 {
 
 
     public static void main(String[] args) throws Exception {
-
-
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
-
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env);
-
         String createDDL = "CREATE TABLE level (" +
                 " time1 BIGINT, " +
                 " uid STRING, " +
@@ -25,10 +21,8 @@ public class Test01 {
                 " 'path' = 'data/input/level.csv', " +
                 " 'format' =  'csv' " +
                 ")";
-
         TableResult result = tableEnv.executeSql(createDDL);
         result.print();
-
         Table aggTable = tableEnv.sqlQuery(
                 "select  \n" +
                 "    level\n" +

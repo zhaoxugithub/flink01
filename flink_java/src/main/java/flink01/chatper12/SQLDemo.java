@@ -9,8 +9,6 @@ import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 public class SQLDemo {
 
     public static void main(String[] args) throws Exception {
-
-
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env);
@@ -33,15 +31,8 @@ public class SQLDemo {
         tableEnv.executeSql("insert into flink_doris(siteid,username,pv)values(23,'wuyanzu',3)")
                 .print();
     }
-
-
     public static void test() {
-
         StreamExecutionEnvironment executionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment();
-
         executionEnvironment.setParallelism(1);
-
-
     }
-
 }

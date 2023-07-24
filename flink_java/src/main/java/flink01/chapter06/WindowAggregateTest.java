@@ -43,12 +43,10 @@ public class WindowAggregateTest {
                         hashSetLongTuple2.f0.add(event.user);
                         return Tuple2.of(hashSetLongTuple2.f0, hashSetLongTuple2.f1 + 1L);
                     }
-
                     @Override
                     public Double getResult(Tuple2<HashSet<String>, Long> hashSetLongTuple2) {
                         return (double)hashSetLongTuple2.f1 / hashSetLongTuple2.f0.size();
                     }
-
                     @Override
                     public Tuple2<HashSet<String>, Long> merge(Tuple2<HashSet<String>, Long> hashSetLongTuple2, Tuple2<HashSet<String>, Long> acc1) {
                         return null;

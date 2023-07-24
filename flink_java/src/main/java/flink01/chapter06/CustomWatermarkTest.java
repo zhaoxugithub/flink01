@@ -12,12 +12,9 @@ public class CustomWatermarkTest {
     public static void main(String[] args) throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
-
-        env
-                .addSource(new ClickSource())
+        env.addSource(new ClickSource())
                 .assignTimestampsAndWatermarks(new CustomWatermarkStrategy())
                 .print();
-
         env.execute();
     }
 
@@ -31,7 +28,6 @@ public class CustomWatermarkTest {
                 }
             };
         }
-
         @Override
         public WatermarkGenerator<Event> createWatermarkGenerator(WatermarkGeneratorSupplier.Context context) {
             return new CustomPeriodicGenerator();
@@ -41,13 +37,11 @@ public class CustomWatermarkTest {
     public static class CustomPeriodicGenerator implements WatermarkGenerator<Event> {
         private Long delayTime = 5000L; // 延迟时间
         private Long maxTs = Long.MIN_VALUE + delayTime + 1L; // 观察到的最大时间戳
-
         @Override
         public void onEvent(Event event, long eventTimestamp, WatermarkOutput output) {
             // 每来一条数据就调用一次
             maxTs = Math.max(event.timestamp, maxTs); // 更新最大时间戳
         }
-
         @Override
         public void onPeriodicEmit(WatermarkOutput output) {
             // 发射水位线，默认200ms调用一次

@@ -21,7 +21,6 @@ public class UvCountByWindowExample {
     public static void main(String[] args) throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
-
         SingleOutputStreamOperator<Event> stream = env.addSource(new ClickSource())
                 .assignTimestampsAndWatermarks(WatermarkStrategy.<Event>forBoundedOutOfOrderness(Duration.ZERO)
                         .withTimestampAssigner(new SerializableTimestampAssigner<Event>() {
@@ -38,7 +37,6 @@ public class UvCountByWindowExample {
                     public void process(Boolean aBoolean, ProcessWindowFunction<Event, String, Boolean,
                             TimeWindow>.Context context, Iterable<Event> elements, Collector<String> out) throws Exception {
                         HashSet<Object> userSet = new HashSet<>();
-
                         for (Event element : elements) {
                             userSet.add(element.user);
                         }

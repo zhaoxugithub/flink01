@@ -13,16 +13,14 @@ import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
  *
  */
 object PartitonerTest {
-
   def main(args: Array[String]): Unit = {
-
     val env = StreamExecutionEnvironment.getExecutionEnvironment
     env.setParallelism(3)
     val stream = env.generateSequence(1, 20).setParallelism(3)
     println(stream.getParallelism)
     stream.shuffle.print()
     //    stream.rebalance.print()
-//    stream.rescale.print()
+    //    stream.rescale.print()
     env.execute()
   }
 }

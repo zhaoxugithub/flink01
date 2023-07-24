@@ -76,17 +76,14 @@ public class AverageTimestampExample {
                         public Tuple2<Long, Long> createAccumulator() {
                             return Tuple2.of(0L, 0L);
                         }
-
                         @Override
                         public Tuple2<Long, Long> add(Event value, Tuple2<Long, Long> accumulator) {
                             return Tuple2.of(accumulator.f0 + value.timestamp, accumulator.f1 + 1);
                         }
-
                         @Override
                         public Long getResult(Tuple2<Long, Long> accumulator) {
                             return accumulator.f0 / accumulator.f1;
                         }
-
                         @Override
                         public Tuple2<Long, Long> merge(Tuple2<Long, Long> a, Tuple2<Long, Long> b) {
                             return null;
@@ -98,7 +95,6 @@ public class AverageTimestampExample {
 
         @Override
         public void flatMap(Event value, Collector<String> out) throws Exception {
-
             Long count = valueState.value();
             if (count == null) {
                 count = 1L;

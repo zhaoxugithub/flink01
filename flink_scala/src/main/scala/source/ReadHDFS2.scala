@@ -8,7 +8,6 @@ import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironm
 
 object ReadHDFS2 {
   def main(args: Array[String]): Unit = {
-
     val env: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
     val path = "hdfs://centos201:9000/user/hive/warehouse/score/"
     /**

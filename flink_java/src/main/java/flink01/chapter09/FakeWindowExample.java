@@ -21,12 +21,9 @@ import java.time.Duration;
  * 全窗口聚合结合的方式实现过这个需求。
  */
 public class FakeWindowExample {
-
     public static void main(String[] args) throws Exception {
-
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
-
         SingleOutputStreamOperator<Event> stream = env.addSource(new ClickSource()).assignTimestampsAndWatermarks(WatermarkStrategy.<Event>forBoundedOutOfOrderness(Duration.ZERO)
                 .withTimestampAssigner(new SerializableTimestampAssigner<Event>() {
                     @Override
@@ -35,28 +32,20 @@ public class FakeWindowExample {
                     }
                 })
         );
-
         stream.print("原始数据=");
         stream.keyBy(data -> data.url)
                 .process(new FakeWindowsResult(10000L))
                 .print();
         env.execute();
-
     }
 
     public static class FakeWindowsResult extends KeyedProcessFunction<String, Event, String> {
-
-
         private Long windowSize;
-
-
         public FakeWindowsResult(Long windowSize) {
             this.windowSize = windowSize;
         }
-
         //申明状态，用map保存pv值(窗口的start,end)
         MapState<Long, Long> windowPvMapState;
-
         @Override
         public void open(Configuration parameters) throws Exception {
             windowPvMapState = getRuntimeContext().getMapState(new MapStateDescriptor<Long, Long>("window-ppv", Long.class, Long.class));
