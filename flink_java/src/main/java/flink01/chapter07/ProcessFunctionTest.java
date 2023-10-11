@@ -21,17 +21,13 @@ public class ProcessFunctionTest {
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
-        //设置生成水位线的时间间隔
-        env.getConfig().setAutoWatermarkInterval(200);
+        // 设置生成水位线的时间间隔
+        env.getConfig()
+           .setAutoWatermarkInterval(200);
 
         SingleOutputStreamOperator<Event> stream = env.addSource(new ClickSource())
-                .assignTimestampsAndWatermarks(WatermarkStrategy.<Event>forBoundedOutOfOrderness(Duration.ofSeconds(5))
-                        .withTimestampAssigner(new SerializableTimestampAssigner<Event>() {
-                            @Override
-                            public long extractTimestamp(Event event, long l) {
-                                return event.timestamp;
-                            }
-                        }));
+                                                      .assignTimestampsAndWatermarks(WatermarkStrategy.<Event>forBoundedOutOfOrderness(Duration.ofSeconds(5))
+                                                                                                      .withTimestampAssigner((SerializableTimestampAssigner<Event>) (event, l) -> event.timestamp));
 
         stream.print("原始数据=");
         stream.process(new ProcessFunction<Event, String>() {
@@ -50,7 +46,7 @@ public class ProcessFunctionTest {
              * @param out The collector for returning result values.
              * @throws Exception
              */
-            //每来一条数据执行一次
+            // 每来一条数据执行一次
             @Override
             public void processElement(Event event, ProcessFunction<Event, String>.Context ctx, Collector<String> out) throws Exception {
                 if ("Marry".equals(event.user)) {
@@ -60,15 +56,15 @@ public class ProcessFunctionTest {
                     out.collect(event.user);
                 }
                 out.collect(event.toString());
-                //获取当前的时间
+                // 获取当前的时间
                 Long timestamp = ctx.timestamp();
-                //ctx.output(); //侧边输出流
-                //ctx.timerService(); //获取定时器服务
-                //因为processFunction又继承了RichFunction，所以他又具备了富函数的相关功能
-                //获取运行时的子任务下标
+                // ctx.output(); //侧边输出流
+                // ctx.timerService(); //获取定时器服务
+                // 因为processFunction又继承了RichFunction，所以他又具备了富函数的相关功能
+                // 获取运行时的子任务下标
                 System.out.println("getRuntimeContext().getIndexOfThisSubtask() = " + getRuntimeContext().getIndexOfThisSubtask());
-                //获取任务的处理状态
-                //getRuntimeContext().getState()
+                // 获取任务的处理状态
+                // getRuntimeContext().getState()
                 TimerService timerService = ctx.timerService();
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
                 String start = sdf.format(new Date(Long.parseLong(String.valueOf(timestamp))));

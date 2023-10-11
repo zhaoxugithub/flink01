@@ -15,7 +15,6 @@ object TransTupleAggregation {
         stream.keyBy(_._1).max("_2").print() //对元组的第 2 个位置数据求最大值
         stream.keyBy(_._1).min(1).print() //对元组的索引 1 位置求最小值
         stream.keyBy(_._1).min("_2").print() //对元组的第 2 个位置数据求最小值
-
         (a,3)
         (a,3)
         (b,4)

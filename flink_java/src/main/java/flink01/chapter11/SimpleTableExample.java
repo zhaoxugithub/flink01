@@ -23,11 +23,13 @@ public class SimpleTableExample {
         Table resultTable1 = tableEnv.sqlQuery("select url, user from " + eventTable);
         // 5. 基于Table直接转换
         Table resultTable2 = eventTable.select($("user"), $("url"))
-                .where($("user").isEqual("Alice"));
+                                       .where($("user").isEqual("Alice"));
         System.out.println("resultTable1");
-        resultTable1.execute().print();
+        resultTable1.execute()
+                    .print();
         System.out.println("resultTable2");
-        resultTable2.execute().print();
+        resultTable2.execute()
+                    .print();
         // 6. 将表转换成数据流，打印输出
 //        tableEnv.toDataStream(resultTable1).print("result1");
 //        tableEnv.toDataStream(resultTable2).print("result2");

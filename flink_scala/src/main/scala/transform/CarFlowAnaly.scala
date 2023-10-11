@@ -2,7 +2,7 @@ package transform
 
 import org.apache.flink.api.common.functions.ReduceFunction
 import org.apache.flink.api.common.typeinfo.TypeInformation
-import org.apache.flink.streaming.api.scala.{DataStream, JoinedStreams, StreamExecutionEnvironment, createTuple2TypeInformation, createTypeInformation}
+import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment, createTuple2TypeInformation, createTypeInformation}
 import org.apache.flink.streaming.connectors.kafka.{FlinkKafkaConsumer, KafkaDeserializationSchema}
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.serialization.StringSerializer
@@ -20,7 +20,6 @@ object CarFlowAnaly {
     //设置key和value的序列化器
     props.setProperty("key.deserializer", classOf[StringSerializer].getName)
     props.setProperty("value.deserializer", classOf[StringSerializer].getName)
-
     val stream: DataStream[(String, String)] = env.addSource(new FlinkKafkaConsumer[(String, String)]("flink-kafka", new KafkaDeserializationSchema[(String, String)] {
       //停止消费数据的条件
       override def isEndOfStream(t: (String, String)): Boolean = false
@@ -39,33 +38,13 @@ object CarFlowAnaly {
     }, props)
     )
     val value: DataStream[(String, Int)] = stream.map(x => {
-      val monitorID = x._2.split(" ")(0)
-      (monitorID, 1)
-    }).keyBy(0)
+        val monitorID = x._2.split(" ")(0)
+        (monitorID, 1)
+      }).keyBy(0)
       .sum(1)
-
-
     println("-------------------------------------")
     val valueStream = stream.map(_._2)
-
     //stream 中元素类型 变成二元组类型  kv stream   k:monitor_id v:1
-    /**
-     * 相同key的 数据一定是由某一个subtask处理
-     * 一个subtask 可能会处理多个key所对应的数据
-     */
-    val value1: DataStream[(String, Int)] = valueStream.map(data => {
-      val splits = data.split("\t")
-      val monitorID = splits(0)
-      (monitorID, 1)
-    }).keyBy(x => x._1)
-      .reduce(new ReduceFunction[(String, Int)] {
-        //v1：上次聚合的结果  v2：本次要聚合的数据
-        override def reduce(v1: (String, Int), v2: (String, Int)): (String, Int) = {
-          (v1._1, v1._2 + v2._2)
-        }
-      })
-
-
     env.execute()
   }
 }

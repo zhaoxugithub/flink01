@@ -29,40 +29,31 @@ public class AverageTimestampExample {
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
-
         SingleOutputStreamOperator<Event> stream = env.addSource(new ClickSource())
-                .assignTimestampsAndWatermarks(WatermarkStrategy.<Event>forBoundedOutOfOrderness(Duration.ZERO)
-                        .withTimestampAssigner(new SerializableTimestampAssigner<Event>() {
-                            @Override
-                            public long extractTimestamp(Event element, long recordTimestamp) {
-                                return element.timestamp;
-                            }
-                        }));
-
+                                                      .assignTimestampsAndWatermarks(WatermarkStrategy.<Event>forBoundedOutOfOrderness(Duration.ZERO)
+                                                                                                      .withTimestampAssigner((SerializableTimestampAssigner<Event>) (element, recordTimestamp) -> element.timestamp));
         stream.print("原始数据=");
-
         stream.keyBy(data -> data.user)
-                .flatMap(new AvgTsResult())
-                .print();
+              .flatMap(new AvgTsResult())
+              .print();
         env.execute();
     }
 
     public static class AvgTsResult extends RichFlatMapFunction<Event, String> {
 
-        //设置生存时间10s
+        // 设置生存时间10s
         StateTtlConfig ttlConfig = StateTtlConfig.newBuilder(Time.seconds(10))
-                //这里设置了什么时候更新状态失效时间，OnCreateAndWrite 表示无论读写都会更新失效时间
-                .setUpdateType(StateTtlConfig.UpdateType.OnCreateAndWrite)
-                //这里设置的 NeverReturnExpired 是默认行为，表示从不返回过期值，也就是只要过期就认为它已
-                //经被清除了，应用不能继续读取；这在处理会话或者隐私数据时比较重要。对应的另一种配置
-                //是 ReturnExpireDefNotCleanedUp，就是如果过期状态还存在，就返回它的值
-                .setStateVisibility(StateTtlConfig.StateVisibility.NeverReturnExpired)
-                .build();
+                                                 // 这里设置了什么时候更新状态失效时间，OnCreateAndWrite 表示无论读写都会更新失效时间
+                                                 .setUpdateType(StateTtlConfig.UpdateType.OnCreateAndWrite)
+                                                 // 这里设置的 NeverReturnExpired 是默认行为，表示从不返回过期值，也就是只要过期就认为它已
+                                                 // 经被清除了，应用不能继续读取；这在处理会话或者隐私数据时比较重要。对应的另一种配置
+                                                 // 是 ReturnExpireDefNotCleanedUp，就是如果过期状态还存在，就返回它的值
+                                                 .setStateVisibility(StateTtlConfig.StateVisibility.NeverReturnExpired)
+                                                 .build();
 
-        //定义一个聚合状态，用来计算平均时间戳
+        // 定义一个聚合状态，用来计算平均时间戳
         AggregatingState<Event, Long> aggregatingState;
-
-        //定义一个值状态，用来保存当前用户访问频次
+        // 定义一个值状态，用来保存当前用户访问频次
         ValueState<Long> valueState;
 
         @Override
@@ -70,27 +61,27 @@ public class AverageTimestampExample {
             ValueStateDescriptor<Long> stateDescriptor = new ValueStateDescriptor<>("visitCount", Long.class);
             stateDescriptor.enableTimeToLive(ttlConfig);
             valueState = getRuntimeContext().getState(stateDescriptor);
-            aggregatingState = getRuntimeContext().getAggregatingState(new AggregatingStateDescriptor<Event, Tuple2<Long, Long>, Long>("avg-ts",
-                    new AggregateFunction<Event, Tuple2<Long, Long>, Long>() {
-                        @Override
-                        public Tuple2<Long, Long> createAccumulator() {
-                            return Tuple2.of(0L, 0L);
-                        }
-                        @Override
-                        public Tuple2<Long, Long> add(Event value, Tuple2<Long, Long> accumulator) {
-                            return Tuple2.of(accumulator.f0 + value.timestamp, accumulator.f1 + 1);
-                        }
-                        @Override
-                        public Long getResult(Tuple2<Long, Long> accumulator) {
-                            return accumulator.f0 / accumulator.f1;
-                        }
-                        @Override
-                        public Tuple2<Long, Long> merge(Tuple2<Long, Long> a, Tuple2<Long, Long> b) {
-                            return null;
-                        }
-                    },
-                    Types.TUPLE(Types.LONG, Types.LONG)
-            ));
+            aggregatingState = getRuntimeContext().getAggregatingState(new AggregatingStateDescriptor<>("avg-ts", new AggregateFunction<Event, Tuple2<Long, Long>, Long>() {
+                @Override
+                public Tuple2<Long, Long> createAccumulator() {
+                    return Tuple2.of(0L, 0L);
+                }
+
+                @Override
+                public Tuple2<Long, Long> add(Event value, Tuple2<Long, Long> accumulator) {
+                    return Tuple2.of(accumulator.f0 + value.timestamp, accumulator.f1 + 1);
+                }
+
+                @Override
+                public Long getResult(Tuple2<Long, Long> accumulator) {
+                    return accumulator.f0 / accumulator.f1;
+                }
+
+                @Override
+                public Tuple2<Long, Long> merge(Tuple2<Long, Long> a, Tuple2<Long, Long> b) {
+                    return null;
+                }
+            }, Types.TUPLE(Types.LONG, Types.LONG)));
         }
 
         @Override
@@ -104,10 +95,9 @@ public class AverageTimestampExample {
             valueState.update(count);
             aggregatingState.add(value);
 
-            //到达5次就输出结果，并且清空状态
+            // 到达5次就输出结果，并且清空状态
             if (count == 5) {
-                out.collect(value.user + " 平均时间戳： " + new
-                        Timestamp(aggregatingState.get()));
+                out.collect(value.user + " 平均时间戳： " + new Timestamp(aggregatingState.get()));
                 valueState.clear();
             }
         }

@@ -1,10 +1,7 @@
 package transform
 
-import org.apache.flink.api.java.functions.KeySelector
 import org.apache.flink.api.scala.createTypeInformation
 import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}
-
-import scala.collection.mutable.ListBuffer
 
 object MapOperator {
   def main(args: Array[String]): Unit = {
@@ -34,14 +31,12 @@ object MapOperator {
           })
           .sum(1)
           .print()*/
-
     //等同于
     stream.flatMap(x => x.split(" "))
       .map(x => (x, 1))
       .keyBy(0)
       .sum(1)
       .print("结果：")
-
     env.execute()
   }
 }

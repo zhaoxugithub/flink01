@@ -108,5 +108,4 @@ public class UrlViewCountExample {
             out.collect(new UrlViewCount(s, elements.iterator().next(), start, end));
         }
     }
-
 }

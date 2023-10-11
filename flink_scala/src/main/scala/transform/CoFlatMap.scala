@@ -9,7 +9,6 @@ import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironm
 
 import scala.collection.mutable
 
-
 /**
  * 现有一个配置文件存储车牌号与车主的真实姓名，\
  * 通过数据流中的车牌号实时匹配出对应的车主姓名
@@ -18,7 +17,6 @@ import scala.collection.mutable
  * stream1.connect(stream2)
  */
 object CoFlatMap {
-
   def main(args: Array[String]): Unit = {
     val env: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
     env.setParallelism(1)
@@ -44,5 +42,4 @@ object CoFlatMap {
       }).print()
     env.execute()
   }
-
 }

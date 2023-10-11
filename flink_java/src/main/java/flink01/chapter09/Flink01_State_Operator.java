@@ -16,8 +16,9 @@ public class Flink01_State_Operator {
     public static void main(String[] args) throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
-        env.socketTextStream("localhost", 9999).map(new MyCountMapper())
-                .print();
+        env.socketTextStream("localhost", 9999)
+           .map(new MyCountMapper())
+           .print();
         env.execute();
     }
 
@@ -27,12 +28,12 @@ public class Flink01_State_Operator {
      */
     public static class MyCountMapper implements MapFunction<String, Long>, CheckpointedFunction {
 
-        //申明一个变量用来存放总数
+        // 申明一个变量用来存放总数
         private Long count = 0L;
-        //列表状态
+        // 列表状态
         private ListState<Long> state;
 
-        //这个方法来自Map接口，是计算逻辑方法
+        // 这个方法来自Map接口，是计算逻辑方法
         @Override
         public Long map(String value) throws Exception {
             count++;
@@ -51,7 +52,8 @@ public class Flink01_State_Operator {
         @Override
         public void initializeState(FunctionInitializationContext context) throws Exception {
             System.out.println("initializeState...");
-            state = context.getOperatorStateStore().getListState(new ListStateDescriptor<Long>("state", Long.class));
+            state = context.getOperatorStateStore()
+                           .getListState(new ListStateDescriptor<Long>("state", Long.class));
             System.out.println("over......" + state.get());
             for (Long aLong : state.get()) {
                 System.out.println("----");

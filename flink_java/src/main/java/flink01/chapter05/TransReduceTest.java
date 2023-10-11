@@ -7,20 +7,20 @@ import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
 public class TransReduceTest {
-
     public static void main(String[] args) throws Exception {
-
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
         DataStreamSource<Event> dss = env.addSource(new ClickSource());
-        dss.map((e) -> Tuple2.of(e.user, 1L)).returns(Types.TUPLE(Types.STRING,Types.LONG))
-                //分流操作
-                .keyBy(f -> f.f0)
-                .reduce((e1, e2) -> Tuple2.of(e1.f0, e1.f1 + e2.f1)).returns(Types.TUPLE(Types.STRING,Types.LONG))
-                //将
-                .keyBy(r -> true)
-                .reduce((e1, e2) -> e1.f1 > e2.f1 ? e1 : e2)
-                .print();
+        dss.map((e) -> Tuple2.of(e.user, 1L))
+           .returns(Types.TUPLE(Types.STRING, Types.LONG))
+           // 分流操作
+           .keyBy(f -> f.f0)
+           .reduce((e1, e2) -> Tuple2.of(e1.f0, e1.f1 + e2.f1))
+           .returns(Types.TUPLE(Types.STRING, Types.LONG))
+           // 将
+           .keyBy(r -> true)
+           .reduce((e1, e2) -> e1.f1 > e2.f1 ? e1 : e2)
+           .print();
         env.execute();
 
 
@@ -53,7 +53,6 @@ public class TransReduceTest {
                     }
                 })
                 .print();
-
         env.execute();*/
     }
 }

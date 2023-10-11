@@ -37,10 +37,6 @@ public class Event {
 
     @Override
     public String toString() {
-        return "Event{" +
-                "user='" + user + '\'' +
-                ", url='" + url + '\'' +
-                ", timestamp=" + new Timestamp(timestamp) +
-                '}';
+        return "Event{" + "user='" + user + '\'' + ", url='" + url + '\'' + ", timestamp=" + new Timestamp(timestamp) + '}';
     }
 }

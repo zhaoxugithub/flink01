@@ -8,11 +8,11 @@ import scala.util.Random
 
 //自定义数据源
 object CustomSourceStandalone {
-
   def main(args: Array[String]): Unit = {
     val env: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
     val value: DataStream[String] = env.addSource(new ParallelSourceFunction[String] {
       var flag = true
+
       override def run(sourceContext: SourceFunction.SourceContext[String]): Unit = {
         val random = new Random()
         while (flag) {
@@ -20,6 +20,7 @@ object CustomSourceStandalone {
           Thread.sleep(100)
         }
       }
+
       override def cancel(): Unit = {
         flag = false;
       }

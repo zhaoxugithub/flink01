@@ -8,9 +8,9 @@ import java.util.Random;
 public class SourceCustomParallelTest {
     public static void main(String[] args) throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-
-        env.addSource(new CustomSource()).setParallelism(2).print();
-
+        env.addSource(new CustomSource())
+           .setParallelism(2)
+           .print();
         env.execute();
     }
 
@@ -19,7 +19,7 @@ public class SourceCustomParallelTest {
         private Random random = new Random();
 
         @Override
-        public void run(SourceContext<Integer> sourceContext) throws Exception {
+        public void run(SourceContext<Integer> sourceContext) {
             while (running) {
                 sourceContext.collect(random.nextInt());
             }

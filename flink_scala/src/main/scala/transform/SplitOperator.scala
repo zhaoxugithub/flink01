@@ -4,7 +4,6 @@ import org.apache.flink.streaming.api.scala.{DataStream, SplitStream, StreamExec
 
 //split算子 可以根据某一些条件来拆分数据流
 object SplitOperator {
-
   def main(args: Array[String]): Unit = {
     val env: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
     val stream: DataStream[Long] = env.generateSequence(1, 100)

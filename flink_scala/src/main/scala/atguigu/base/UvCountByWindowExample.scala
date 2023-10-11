@@ -24,13 +24,10 @@ object UvCountByWindowExample {
   }
 
   // 自定义窗口处理函数
-
   /*
-
     ProcessWindowFunction:是窗口函数中的全窗口函数中的处理窗口函数
     全窗口聚合函数需要先收集窗 口中的数据，并在内部缓存起来，等到窗口要输出结果的时候再取出数据进行计算
     elements：就是窗口中缓存的数据
-
    */
   class UvCountByWindow extends ProcessWindowFunction[Event, String, String, TimeWindow] {
     override def process(key: String, context: Context, elements: Iterable[Event], out: Collector[String]): Unit = {

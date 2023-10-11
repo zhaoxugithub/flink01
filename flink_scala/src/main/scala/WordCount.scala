@@ -7,7 +7,6 @@ object WordCount {
      * createLocalEnvironment 创建一个本地执行的环境  local
      * createLocalEnvironmentWithWebUI 创建一个本地执行的环境  同时还开启Web UI的查看端口  8081
      * getExecutionEnvironment 根据你执行的环境创建上下文，比如local  cluster
-     *
      */
     val env: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
     env.setParallelism(1)

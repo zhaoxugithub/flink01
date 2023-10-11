@@ -22,21 +22,16 @@ public class PeriodicPvExample {
         env.setParallelism(1);
 
         SingleOutputStreamOperator<Event> stream = env.addSource(new ClickSource())
-                .assignTimestampsAndWatermarks(WatermarkStrategy.<Event>forBoundedOutOfOrderness(Duration.ZERO)
-                        .withTimestampAssigner(new SerializableTimestampAssigner<Event>() {
-                            @Override
-                            public long extractTimestamp(Event element, long recordTimestamp) {
-                                return element.timestamp;
-                            }
-                        })
-                );
+                                                      .assignTimestampsAndWatermarks(WatermarkStrategy.<Event>forBoundedOutOfOrderness(Duration.ZERO)
+                                                                                                      .withTimestampAssigner((SerializableTimestampAssigner<Event>) (element, recordTimestamp) -> element.timestamp));
         stream.print("原始数据=");
         // 统计每个用户的pv，每隔10s输出一次结果
         stream.keyBy(user -> user.user)
-                .process(new PeriodicPvResult())
-                .print();
+              .process(new PeriodicPvResult())
+              .print();
         env.execute();
     }
+
     /*
         KeyedProcessFunction 继承自AbstractRichFunction
         所以具有任务的生命周期方法:open,close等
@@ -44,37 +39,38 @@ public class PeriodicPvExample {
         同时，由于继承了KeyedProcessFunction，所以具有OnTimer定时器触发方法
      */
     public static class PeriodicPvResult extends KeyedProcessFunction<String, Event, String> {
-        //定义两个状态，保存当前的pv值，以及定时器时间戳
+        // 定义两个状态，保存当前的pv值，以及定时器时间戳
         ValueState<Long> countState;
         ValueState<Long> timerTsState;
-        //只会执行一次
+
+        // 只会执行一次
         @Override
-        public void open(Configuration parameters) throws Exception {
+        public void open(Configuration parameters) {
             countState = getRuntimeContext().getState(new ValueStateDescriptor<Long>("count", Long.class));
             timerTsState = getRuntimeContext().getState(new ValueStateDescriptor<Long>("timerTs", Long.class));
         }
-        //每来一条数据执行一次
+
+        // 每来一条数据执行一次
         @Override
-        public void processElement(Event value, KeyedProcessFunction<String, Event, String>.Context ctx,
-                                   Collector<String> out) throws Exception {
+        public void processElement(Event value, KeyedProcessFunction<String, Event, String>.Context ctx, Collector<String> out) throws Exception {
             Long value1 = countState.value();
             if (value1 == null) {
                 countState.update(1L);
             } else {
                 countState.update(value1 + 1);
             }
-            //注册定时器,10s之后会触发
-            ctx.timerService().registerEventTimeTimer(value.timestamp + 10 * 1000L);
-            //再将定时器保存到状态中
+            // 注册定时器,10s之后会触发
+            ctx.timerService()
+               .registerEventTimeTimer(value.timestamp + 10 * 1000L);
+            // 再将定时器保存到状态中
             timerTsState.update(value.timestamp + 10 * 1000L);
         }
 
-        //定时器触发
+        // 定时器触发
         @Override
-        public void onTimer(long timestamp, KeyedProcessFunction<String, Event, String>.OnTimerContext ctx,
-                            Collector<String> out) throws Exception {
+        public void onTimer(long timestamp, KeyedProcessFunction<String, Event, String>.OnTimerContext ctx, Collector<String> out) throws Exception {
             out.collect(ctx.getCurrentKey() + "pv:" + countState.value());
-            //清空状态
+            // 清空状态
             timerTsState.clear();
         }
     }

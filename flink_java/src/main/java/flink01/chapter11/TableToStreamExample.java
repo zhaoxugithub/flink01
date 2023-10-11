@@ -14,28 +14,20 @@ public class TableToStreamExample {
         // 获取流环境
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
-
         // 读取数据源
-        SingleOutputStreamOperator<Event> eventStream = env
-                .addSource(new ClickSource());
-
+        SingleOutputStreamOperator<Event> eventStream = env.addSource(new ClickSource());
         // 获取表环境
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env);
-
         // 将数据流转换成表
         tableEnv.createTemporaryView("EventTable", eventStream);
-
-
         // 查询Alice的访问url列表
         Table aliceVisitTable = tableEnv.sqlQuery("SELECT url, user FROM EventTable WHERE user = 'Alice'");
-
         // 统计每个用户的点击次数
         Table urlCountTable = tableEnv.sqlQuery("SELECT user, COUNT(url) FROM EventTable GROUP BY user");
-
         // 将表转换成数据流，在控制台打印输出
 //        tableEnv.toDataStream(aliceVisitTable).print("alice visit");
-        tableEnv.toChangelogStream(urlCountTable).print("count");
-
+        tableEnv.toChangelogStream(urlCountTable)
+                .print("count");
         // 执行程序
         env.execute();
     }

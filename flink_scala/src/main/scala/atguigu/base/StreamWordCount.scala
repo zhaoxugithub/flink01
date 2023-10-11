@@ -5,7 +5,6 @@ import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironm
 
 object StreamWordCount {
   def main(args: Array[String]): Unit = {
-
     val env: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
     val dataStream: DataStream[String] = env.socketTextStream("centos201", 9999)
     val result: DataStream[(String, Int)] = dataStream

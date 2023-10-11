@@ -24,28 +24,26 @@ public class FakeWindowExample {
     public static void main(String[] args) throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
-        SingleOutputStreamOperator<Event> stream = env.addSource(new ClickSource()).assignTimestampsAndWatermarks(WatermarkStrategy.<Event>forBoundedOutOfOrderness(Duration.ZERO)
-                .withTimestampAssigner(new SerializableTimestampAssigner<Event>() {
-                    @Override
-                    public long extractTimestamp(Event element, long recordTimestamp) {
-                        return element.timestamp;
-                    }
-                })
-        );
+        SingleOutputStreamOperator<Event> stream = env.addSource(new ClickSource())
+                                                      .assignTimestampsAndWatermarks(WatermarkStrategy.<Event>forBoundedOutOfOrderness(Duration.ZERO)
+                                                                                                      .withTimestampAssigner((SerializableTimestampAssigner<Event>) (element, recordTimestamp) -> element.timestamp));
         stream.print("原始数据=");
         stream.keyBy(data -> data.url)
-                .process(new FakeWindowsResult(10000L))
-                .print();
+              .process(new FakeWindowsResult(10000L))
+              .print();
         env.execute();
     }
 
     public static class FakeWindowsResult extends KeyedProcessFunction<String, Event, String> {
         private Long windowSize;
+
         public FakeWindowsResult(Long windowSize) {
             this.windowSize = windowSize;
         }
-        //申明状态，用map保存pv值(窗口的start,end)
+
+        // 申明状态，用map保存pv值(窗口的start,end)
         MapState<Long, Long> windowPvMapState;
+
         @Override
         public void open(Configuration parameters) throws Exception {
             windowPvMapState = getRuntimeContext().getMapState(new MapStateDescriptor<Long, Long>("window-ppv", Long.class, Long.class));
@@ -53,13 +51,14 @@ public class FakeWindowExample {
 
         @Override
         public void processElement(Event value, KeyedProcessFunction<String, Event, String>.Context ctx, Collector<String> out) throws Exception {
-            //每来一条数据，就根据时间戳判断属于哪个窗口
-            //value.timestamp 表述日志数据的时间戳
+            // 每来一条数据，就根据时间戳判断属于哪个窗口
+            // value.timestamp 表述日志数据的时间戳
             Long windowsStart = value.timestamp / windowSize * windowSize;
             Long windowEnd = windowsStart + windowSize;
 
-            //注册end-1的定时器，窗口触发计算
-            ctx.timerService().registerEventTimeTimer(windowEnd - 1);
+            // 注册end-1的定时器，窗口触发计算
+            ctx.timerService()
+               .registerEventTimeTimer(windowEnd - 1);
 
             if (windowPvMapState.contains(windowEnd)) {
                 Long pv = windowPvMapState.get(windowEnd);
@@ -69,17 +68,14 @@ public class FakeWindowExample {
             }
         }
 
-        //定时器触发
-        //timestamp 表示的是窗口触发的时间
+        // 定时器触发
+        // timestamp 表示的是窗口触发的时间
         @Override
         public void onTimer(long timestamp, KeyedProcessFunction<String, Event, String>.OnTimerContext ctx, Collector<String> out) throws Exception {
             Long windowEnd = timestamp + 1;
             Long windowStart = windowEnd - windowSize;
             Long pv = windowPvMapState.get(windowEnd);
-            out.collect("url: " + ctx.getCurrentKey()
-                    + " 访问量: " + pv
-                    + " 窗 口 ： " + new Timestamp(windowStart) + " ~ " + new
-                    Timestamp(windowEnd));
+            out.collect("url: " + ctx.getCurrentKey() + " 访问量: " + pv + " 窗 口 ： " + new Timestamp(windowStart) + " ~ " + new Timestamp(windowEnd));
             // 模拟窗口的销毁，清除 map 中的 key
             windowPvMapState.remove(windowEnd);
         }

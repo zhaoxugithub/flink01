@@ -1,7 +1,6 @@
 package source
 
-import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
-import org.apache.flink.streaming.api.scala._
+import org.apache.flink.streaming.api.scala.{StreamExecutionEnvironment, _}
 
 object ReadHDFS1 {
   def main(args: Array[String]): Unit = {

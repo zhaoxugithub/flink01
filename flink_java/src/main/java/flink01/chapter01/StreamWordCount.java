@@ -14,14 +14,19 @@ import java.util.Arrays;
 public class StreamWordCount {
 
     public static void main(String[] args) throws Exception {
-        //创建流式处理环境
+        // 创建流式处理环境
         StreamExecutionEnvironment executionEnvironment = StreamContextEnvironment.getExecutionEnvironment();
         DataStreamSource<String> dss = executionEnvironment.socketTextStream("localhost", 9999);
         SingleOutputStreamOperator<Tuple2<String, Long>> flatMapDSS = dss.flatMap((String line, Collector<String> out) -> {
-//            Arrays.stream(line.split(" ")).forEach((word) -> out.collect(word));
-            //简化成：
-            Arrays.stream(line.split(" ")).forEach(out::collect);
-        }).setParallelism(4).returns(Types.STRING).map(word -> Tuple2.of(word, 1L)).returns(Types.TUPLE(Types.STRING, Types.LONG));
+                                                                             //  Arrays.stream(line.split(" ")).forEach((word) -> out.collect(word));
+                                                                             // 简化成：
+                                                                             Arrays.stream(line.split(" "))
+                                                                                   .forEach(out::collect);
+                                                                         })
+                                                                         .setParallelism(4)
+                                                                         .returns(Types.STRING)
+                                                                         .map(word -> Tuple2.of(word, 1L))
+                                                                         .returns(Types.TUPLE(Types.STRING, Types.LONG));
         KeyedStream<Tuple2<String, Long>, String> tuple2StringKeyedStream = flatMapDSS.keyBy(t -> t.f0);
         SingleOutputStreamOperator<Tuple2<String, Long>> sum = tuple2StringKeyedStream.sum(1);
         sum.print();
